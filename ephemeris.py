@@ -14,8 +14,8 @@ CHI_lat  = 49.32
 CHI_long = -119.62
 
 ##### Test Changes #####
-CHI_lat  = 45
-CHI_long = -120
+#CHI_lat  = 49
+#CHI_long = -120
 ########################
 
 ### Parameters of the sim
