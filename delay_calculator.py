@@ -16,13 +16,13 @@ chime_offset_clockwise = 0*(np.pi/180.)
 one_over_c = 3.3356
 
 # Location of file containing feed positions in [x]\t[y]\n format, in m
-feed_config_file = "/home/qingtang/pulsar/feed_loc_layout27.txt"
+feed_config_file = "/home/denman/chime_proc/chime_layout_8ch_old.dat"
 
 # Location of file containing cable delays in [t]\n format, in ns
 cable_delay_file = "/home/denman/chime_proc/chime_cable_delays.dat"
 
 ### TEST CHANGES ###
-feed_config_file = "test_grid.dat"
+#feed_config_file = "test_grid.dat"
 ####################
 
 if len(sys.argv) != 3:
@@ -48,5 +48,4 @@ else:
         effective_angle  = projection_angle - (source_az - chime_offset_clockwise)
 
         feed_delays.append(np.sin(effective_angle)*offset_distance*one_over_c + cable_delays[i]) 
-
-print feed_delays
+        print feed_delays[i]
