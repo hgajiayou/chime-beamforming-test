@@ -8,7 +8,7 @@
 ### Import statements
 import numpy as np
 import sys
-
+import scipy.misc
 
 
 ### Constants 
@@ -21,6 +21,7 @@ baseband_data_file = "/mnt/CHIMEdata/baseband_data/B0329/1000.dat"
 
 # save location for output files
 output_file = "./corr_data/beamformed-result.dat"
+output_image_name = "./poorly_beamformed_data.png"
 
 # constants related to file and packet structure
 header_length_bytes = 58
@@ -39,7 +40,8 @@ frequency_array = np.linspace(min_freqency_ghz, max_freqency_ghz, n_frequencies)
 
 
 ### TEST CHANGES ###
-packets_in_file = 10
+packets_in_file = 40
+baseband_data_file = "./corr_data/fake_data.dat"
 ####################
 
 
@@ -59,18 +61,22 @@ data_file = open(baseband_data_file, "rb")
 
 # read in data from the baseband packet files
 for i in range(packets_in_file):
-    data_file.seek(i*packet_size_bytes + header_length_bytes, 0)
+    data_file.seek( i*packet_size_bytes + header_length_bytes, 0)
     for k in range(frames_per_packet):
         read_data = np.fromstring(data_file.read(frame_length),dtype=np.uint8)
         data_real = ((read_data >> 4).astype(np.int32) - 8)
         data_imag = ((read_data & 0xf).astype(np.int32) - 8)
         data_complex = data_real + 1.0j*data_imag
         del data_real, data_imag
-        data_complex = data_complex.reshape((n_elements, n_frequencies), order='F')
+        data_complex = data_complex.reshape((n_elements, n_frequencies), order='C')
         raw_baseband_data.append(data_complex)
 
 delay_phases = delay_times*2*np.pi
 # to convert to true delay, multiply by (frequency / 1GHz) - so 0.4 through 0.8
+
+#scipy.misc.imsave(output_image_name, np.abs(raw_baseband_data[:][2][:]))
+
+
 
 beamformed_data = []
 
@@ -80,7 +86,9 @@ for i in range(packets_in_file*frames_per_packet): #for each timestep
         summed_beam = 0.
         for l in range(n_elements): #for each element
             phase=-1.0j*delay_phases[l]*frequency_array[k]
-            summed_beam +=  raw_baseband_data[i][l][k]*np.exp(phase)
+            summed_beam +=  raw_baseband_data[i][l][k]#*np.exp(phase)
         beamformed_data[i].append(summed_beam)
 
 np.savetxt(output_file, beamformed_data, fmt = '%s\t'*n_frequencies)
+
+scipy.misc.imsave(output_image_name, np.abs(beamformed_data))
